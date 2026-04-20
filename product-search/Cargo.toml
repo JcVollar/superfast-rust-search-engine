@@ -1,0 +1,57 @@
+[package]
+name = "product-search"
+version = "0.1.0"
+edition = "2021"
+
+[features]
+default = []
+# Enable local ONNX embeddings via fastembed (requires ONNX Runtime)
+embeddings = ["dep:fastembed"]
+
+[dependencies]
+# Full-text search (BM25)
+tantivy = "0.22"
+
+# Vector ANN search (LMDB-backed)
+arroy = "0.6"
+heed = "0.22"
+
+# Local embeddings (ONNX) — optional, behind "embeddings" feature
+fastembed = { version = "4", optional = true }
+
+# Caching (TinyLFU)
+moka = { version = "0.12", features = ["sync"] }
+
+# Parallelism
+rayon = "1"
+
+# HTTP server
+axum = { version = "0.7", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+tower-http = { version = "0.5", features = ["cors", "trace"] }
+
+# Serialization
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+# CLI
+clap = { version = "4", features = ["derive"] }
+
+# Randomness (needed by arroy builder)
+rand = "0.8"
+
+# Logging
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# Hashing for document assignment
+ahash = "0.8"
+
+# Error handling
+anyhow = "1"
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+codegen-units = 1
+strip = true
