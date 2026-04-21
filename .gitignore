@@ -1,6 +1,7 @@
 # Large data files
 *.csv
 *.jsonl
+*.db
 
 # OS files
 .DS_Store

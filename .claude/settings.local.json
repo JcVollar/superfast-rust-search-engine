@@ -45,7 +45,23 @@
       "Bash(taskkill //F //IM product-search.exe)",
       "Bash(rm -rf \"C:/temp/search-data\")",
       "Bash(python -c \" import json,sys r=json.load\\(sys.stdin\\) print\\(f'Found {r[\\\\\"total_hits\\\\\"]} results in {r[\\\\\"took_ms\\\\\"]:.1f}ms'\\) for h in r['results']: print\\(f' {h[\\\\\"product_id\\\\\"]:>12} | {h[\\\\\"name\\\\\"]:40s} | {h.get\\(\\\\\"color\\\\\",\\\\\"\\\\\"\\)}'\\) \" echo \"\" echo \"=== EQUINOR \\(unique results\\) ===\" echo '{\"query\": \"Equinor\", \"mode\": \"text\", \"k\": 10, \"fields\": [\"name\", \"brand\", \"color\"]}' curl -s http://localhost:3030/search -H \"Content-Type: application/json\" -d @/tmp/q.json)",
-      "Bash(python -c \" import json,sys r=json.load\\(sys.stdin\\) print\\(f'Found {r[\\\\\"total_hits\\\\\"]} results in {r[\\\\\"took_ms\\\\\"]:.1f}ms'\\) for h in r['results']: print\\(f' {h[\\\\\"product_id\\\\\"]:>12} | {h[\\\\\"name\\\\\"]:45s} | {h.get\\(\\\\\"brand\\\\\",\\\\\"\\\\\"\\):20s} | {h.get\\(\\\\\"color\\\\\",\\\\\"\\\\\"\\)}'\\) \" echo \"\" echo \"=== REINDEX SAME DATA \\(test upsert — count should stay 1158300\\) ===\" cd \"C:/Users/jcvol/OneDrive/Desktop/Seach/product-search\")"
+      "Bash(python -c \" import json,sys r=json.load\\(sys.stdin\\) print\\(f'Found {r[\\\\\"total_hits\\\\\"]} results in {r[\\\\\"took_ms\\\\\"]:.1f}ms'\\) for h in r['results']: print\\(f' {h[\\\\\"product_id\\\\\"]:>12} | {h[\\\\\"name\\\\\"]:45s} | {h.get\\(\\\\\"brand\\\\\",\\\\\"\\\\\"\\):20s} | {h.get\\(\\\\\"color\\\\\",\\\\\"\\\\\"\\)}'\\) \" echo \"\" echo \"=== REINDEX SAME DATA \\(test upsert — count should stay 1158300\\) ===\" cd \"C:/Users/jcvol/OneDrive/Desktop/Seach/product-search\")",
+      "Bash(netstat -ano)",
+      "Bash(tasklist /FI \"PID eq 32216\")",
+      "Bash(tasklist //FI \"PID eq 32216\")",
+      "Bash(taskkill *)",
+      "Bash(python *)",
+      "Bash(pip install *)",
+      "Bash(tasklist //FI \"IMAGENAME eq product-search.exe\")",
+      "Bash(./target/release/product-search.exe --index-file ./data/felleskjopet.jsonl --no-server)",
+      "Bash(tasklist //FI \"IMAGENAME eq OneDrive.exe\")",
+      "Bash(./target/release/product-search.exe --index-file ./data/felleskjopet.jsonl --no-server --batch-size 500)",
+      "Bash(./target/release/product-search.exe --index-file ./data/felleskjopet.jsonl --no-server --segments 1 --batch-size 2000)",
+      "Bash(./target/release/product-search.exe --segments 1)",
+      "Bash(tee /tmp/server.log)",
+      "Bash(./target/release/product-search.exe --index-file ./data/felleskjopet.jsonl --no-server --segments 4)",
+      "Bash(./target/release/product-search.exe)",
+      "Bash(tee /tmp/server2.log)"
     ]
   }
 }

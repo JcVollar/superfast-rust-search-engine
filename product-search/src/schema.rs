@@ -39,24 +39,6 @@ impl ProductFields {
         ]
     }
 
-    /// All field names for mapping.
-    pub fn field_names() -> &'static [&'static str] {
-        &[
-            "product_id",
-            "name",
-            "brand",
-            "category",
-            "sku",
-            "color",
-            "size",
-            "material",
-            "description",
-            "specifications",
-            "price",
-            "stock",
-            "attributes",
-        ]
-    }
 }
 
 /// Build the tantivy schema for products.

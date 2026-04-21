@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::sync::Mutex;
 
 use arroy::distances::Cosine;
@@ -16,8 +16,9 @@ use crate::schema::{
 };
 use crate::types::ProductDocument;
 
-/// Vector dimensions for all-MiniLM-L6-v2.
-pub const VECTOR_DIMENSIONS: usize = 384;
+/// Vector dimensions. Currently sized for OpenAI text-embedding-3-large (3072-dim).
+/// Change to 384 for all-MiniLM-L6-v2 when targeting Pi 5 production.
+pub const VECTOR_DIMENSIONS: usize = 3072;
 
 /// arroy index identifier (u16, we use a single index per segment).
 const ARROY_INDEX: u16 = 0;
@@ -25,7 +26,6 @@ const ARROY_INDEX: u16 = 0;
 /// A single search segment containing a tantivy index + arroy vector database.
 pub struct Segment {
     pub id: usize,
-    pub data_dir: PathBuf,
 
     // Tantivy
     pub schema: Schema,
@@ -45,9 +45,9 @@ pub type SegmentSearchResult = Vec<(u32, f32)>;
 impl Segment {
     /// Open or create a segment at `base_dir/seg-{id}/`.
     pub fn open(id: usize, base_dir: &Path) -> anyhow::Result<Self> {
-        let data_dir = base_dir.join(format!("seg-{}", id));
-        let tantivy_dir = data_dir.join("tantivy");
-        let arroy_dir = data_dir.join("arroy");
+        let seg_dir = base_dir.join(format!("seg-{}", id));
+        let tantivy_dir = seg_dir.join("tantivy");
+        let arroy_dir = seg_dir.join("arroy");
 
         std::fs::create_dir_all(&tantivy_dir)?;
         std::fs::create_dir_all(&arroy_dir)?;
@@ -61,13 +61,18 @@ impl Segment {
             Err(_) => Index::create_in_dir(&tantivy_dir, schema.clone())?,
         };
 
+        // Manual reload — commit() explicitly reloads. Avoids per-segment background
+        // file_watcher threads that poll meta.json and warn loudly when paths vanish
+        // (e.g. during dev resets).
         let reader = index
             .reader_builder()
-            .reload_policy(ReloadPolicy::OnCommitWithDelay)
+            .reload_policy(ReloadPolicy::Manual)
             .try_into()?;
+        reader.reload()?;
 
-        // 200MB writer budget per segment (needed for large text docs)
-        let writer = index.writer(200_000_000)?;
+        // 200MB writer budget, single worker thread to reduce concurrent file writes
+        // per segment (Windows Defender real-time scanning fights multi-threaded writes).
+        let writer = index.writer_with_num_threads(1, 200_000_000)?;
 
         // Open LMDB environment for arroy
         let arroy_env = unsafe {
@@ -84,7 +89,6 @@ impl Segment {
 
         Ok(Segment {
             id,
-            data_dir,
             schema,
             fields,
             index,
